@@ -1,9 +1,37 @@
 import { defineConfig } from 'vitepress'
+import path from 'path'
+import fs from 'fs'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   lang: 'zh-CN',
   srcDir: "docs",
+
+  vite: {
+    plugins: [
+      {
+        name: 'serve-html-download',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            const url = decodeURIComponent(req.url || '')
+            if (url === '/车路云一体化云控平台.html') {
+              console.log('[serve-html-download] 拦截到 HTML 下载请求:', url)
+              const filePath = path.resolve(process.cwd(), 'public', '车路云一体化云控平台.html')
+              if (fs.existsSync(filePath)) {
+                res.setHeader('Content-Type', 'text/html; charset=utf-8')
+                const encodedFilename = encodeURIComponent('车路云一体化云控平台.html')
+                res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodedFilename}`)
+                res.end(fs.readFileSync(filePath))
+                return
+              }
+            }
+            next()
+          })
+        }
+      }
+    ]
+  },
+
 
   title: "车路协同系统装调与测试",
   description: 'C-V2X 车联网与车路协同关键技术课程（基于《C-V2X车联网与车路协同关键技术》蒋建春、林峰 著）',
@@ -15,46 +43,13 @@ export default defineConfig({
       { text: '参考教材', link: '/chapters/ch01', activeMatch: '/chapters/' },
       {
         text: '讲义下载',
+        link: '/download/',
         items: [
-          {
-            text: '项目一 V2X 技术认知',
-            items: [
-              { text: '项目一任务一.pdf', link: '/book/教材扫描/项目一任务一.pdf' },
-              { text: '项目一任务二.pdf', link: '/book/教材扫描/项目一任务二.pdf' },
-              { text: '项目一任务三.pdf', link: '/book/教材扫描/项目一任务三.pdf' },
-            ]
-          },
-          {
-            text: '项目二 车载终端的装调与应用',
-            items: [
-              { text: '项目二任务一.pdf', link: '/book/教材扫描/项目二任务一.pdf' },
-              { text: '项目二任务二.pdf', link: '/book/教材扫描/项目二任务二.pdf' },
-            ]
-          },
-          {
-            text: '项目三 路侧设备的装调与应用',
-            items: [
-              { text: '项目三任务一.pdf', link: '/book/教材扫描/项目三任务一.pdf' },
-              { text: '项目三任务二.pdf', link: '/book/教材扫描/项目三任务二.pdf' },
-              { text: '项目三任务三.pdf', link: '/book/教材扫描/项目三任务三.pdf' },
-            ]
-          },
-          {
-            text: '项目四 车云远程数据交互系统认知',
-            items: [
-              { text: '项目四任务一.pdf', link: '/book/教材扫描/项目四任务一.pdf' },
-              { text: '项目四任务二.pdf', link: '/book/教材扫描/项目四任务二.pdf' },
-              { text: '项目四任务三.pdf', link: '/book/教材扫描/项目四任务三.pdf' },
-            ]
-          },
-          {
-            text: '项目五 高精度地图的应用',
-            items: [
-              { text: '项目五任务一.pdf', link: '/book/教材扫描/项目五任务一.pdf' },
-              { text: '项目五任务二.pdf', link: '/book/教材扫描/项目五任务二.pdf' },
-              { text: '项目五任务三.pdf', link: '/book/教材扫描/项目五任务三.pdf' },
-            ]
-          },
+          { text: '项目一 V2X 技术认知', link: '/download/项目一V2X技术认知' },
+          { text: '项目二 车载终端的装调与应用', link: '/download/项目二车载终端的装调与应用' },
+          { text: '项目三 路侧设备的装调与应用', link: '/download/项目三路侧设备的装调与应用' },
+          { text: '项目四 车云远程数据交互系统认知', link: '/download/项目四车云远程数据交互系统认知' },
+          { text: '项目五 高精度地图的应用', link: '/download/项目五高精度地图的应用' },
         ]
       },
     ],
@@ -91,7 +86,17 @@ export default defineConfig({
             { text: '第 7 章  车路协同防撞预警模型及其设计', link: '/chapters/ch07' },
           ]
         }
-      ]
+      ],
+
+      '/download/': [
+        {
+          text: '讲义下载',
+          collapsible: false,
+          items: [
+            { text: '讲义下载', link: '/download/' },
+          ]
+        }
+      ],
     },
 
     search: {
